@@ -24,12 +24,13 @@ Projeye başlamadan önce bu dosyaların elinizde olması gerekir:
 Google Form'unuza şu alanları mutlaka ekleyin:
 
 - ✅ **Zaman damgası** (otomatik eklenir)
-- ✅ **E-posta adresi** (opsiyonel ama önerilir)
-- ✅ **Hasta Protokol Numarası** (örneğin: `MP42/25`)
+- ✅ **E-posta adresi** (veri güvenliği için gerekli)
+- ✅ **Hasta Protokol Numarası** (örneğin: `MP42/25`) Bu sırada olsun. Üçüncü sütuna göre veri tabanı şekillenecek.
 
 🔒 **Protokol Numarası alanı için doğrulama:**  
 Yanıt doğrulaması: `Normal ifade içerir` → `^[^\s]+$`  
 Açıklama: `"Boşluk içermeyen bir kod girin (örn: MP42/25)"`
+Bunun sebebi boşluk verilen protokol numaraları yeni hasta gibi kabul edilebilir.
 
 ![Form Görünümü](screen.png)
 
@@ -84,11 +85,12 @@ Eğer hasta sayınız 500'den fazlaysa:
 
 ## 🧠 Neler Bilmelisiniz?
 
-- Google Form’da yaptığınız eklemeler (soru ekleme gibi), **Veri** sayfasında da başlıkları eklemenz gerekebilir.
+- Google Form’da yaptığınız eklemeler (soru ekleme gibi), **Veri** sayfasında da başlıkları eklemenz gerekebilir (opsiyonel).
 - Her form yanıtı geldiğinde formüller otomatik çalışır.
 - Elle formül yazmanıza gerek yoktur.
 - İlk hastanız formdan gönderilince ilk satırda belirir. İkinci hasta ikinci satıra geçer.
-- girilmiş bir hasta tekrar girilince yeni satır eklenmez, eskisinin üserine yeni bilge neyse eklenir, boş yanıtlar dolu hücreleri boş yapmaz.
+- Girilmiş bir hasta tekrar girilince yeni satır eklenmez, eskisinin üserine yeni bilgi neyse o kısım eklenir.
+- Boş yanıtlar dolu hücreleri boş yapmaz.
 
 ---
 
