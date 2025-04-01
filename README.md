@@ -1,75 +1,57 @@
-# Google-Form-Hasta-Takip
-Google Form'dan Google Sheets'e Otomatik Veri Aktarımı (Formül Tabanlı)
+# 📁 Google Form ile Otomatik Veri Eşleştirme (Veritabanı Görünümlü)
 
-Bu sistem, Google Form ile toplanan verileri Google Sheets'e otomatik olarak yansıtır. "Veri" adlı sayfada, hasta protokol numarasına (örneğin MP42/25) göre en güncel veri satırı en güncel hücreler ile görüntülenir.
+## 🌐 Amaç
+Bu proje, Google Forms aracılığıyla toplanan hasta bilgilerinin, hasta protokol numarası ("MP42/25" gibi) ile eşleşitirilerek Google Sheets üzerinde dinamik bir "veri tabanı" oluşturulmasını sağlar. Kodlar Apps Script ile yazılmıştır.
 
-## Gereksinimler
+---
 
-- Google Form (oluşturulmuş ve "Form Yanıtları" sayfasına bağlı)
-- "Form Yanıtları" sayfasında şu sütunlar en az olmalıdır:
-  - A: Zaman Damgası (Otomatik)
-  - B: E-posta adresi (Güvenlik amaçlı)
-  - C: Hasta Protokolü (örnek: MP42/25) ← bu sütun zorunludur!
+## 🔧 Kurulum Aşamaları
 
-## 🔐 Protokol Kodu Doğrulama
+### ✏️ 1. Google Form Oluşturun
 
-Google Form'daki "Hasta Protokol Kodu" alanına şu doğrulama uygulanmalıdır:
+Formunuzda mutlaka bulunması gereken ilk 3 alan:
 
-- **Yanıt doğrulama:** Normal ifade → `^[^\s]+$`
-- **Açıklama:** "Boşluk kullanmayın."
+| Sıra | Alan                        | Tip       | Ayarlar |
+|------|-----------------------------|-----------|---------|
+| 1    | Zaman Damgası             | Otomatik  | -       |
+| 2    | E-posta Adresi              | Otomatik  | Ayarlardan etkinleştirin |
+| 3    | Hasta Protokol Numarası   | Kısa Yanıt | Zorunlu, şu ifade ile: `^[^\s]+$` (Boşluk karakteri içeremez)
 
-## Sayfa Kurulumu
++ Diğer alanlar (mutasyonlar, klinik bilgiler, yorum vs.) ihtiyaca göre eklenebilir.
 
-1. Google Sheets içinde yeni bir sayfa oluşturun, adını **Veri** yapın.
-2. 1. satıra, "Form Yanıtları" sayfasıyla aynı başlıkları sırasıyla ekleyin.
-3. A2:A500 arası satırlara sabit hasta protokol numaralarını (örnek: MP42/25) yazın.
+---
 
-## Script Kullanımı
+### 📄 2. Google Sheet İçeriği
 
-1. Menüden → "Uzantılar > Apps Script" seçin.
-2. Aşağıdaki script'i yapıştırın ve kaydedin.
+Form oluştuktan sonra otomatik olarak **FormYanıtları** sayfası oluşur. Ayrıca aynı dosyada yeni bir sayfa oluşturun:  
+**Sayfa adı: `Veri`**
+
+Bu sayfaya hasta protokol numarasına göre en güncel bilgileri otomatik getireceğiz.
+
+---
+
+### 👨‍💻 3. Apps Script Ekleme
+
+1. Google Sheet üzerinden `Uzantılar > Apps Script` menüsüne gidin.
+2. `Kod.gs` dosyasının içeriğini aşağıya yapıştırın:
+
+---
+
+### ✉️ Kod (501–1000 Arası Satırlar)
 
 ```javascript
-function doldurVeriSayfasi_0_500() {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
-  const hedefSayfa = ss.getSheetByName("Veri");
-
-  if (!hedefSayfa) {
-    SpreadsheetApp.getUi().alert("'Veri' sayfası bulunamadı.");
-    return;
-  }
-
-  const baslikAraligi = hedefSayfa.getRange(1, 2, 1, 56).getValues()[0]; // B1:BE1 arası başlıklar
-
-  for (let row = 2; row <= 501; row++) {
-    const mpRef = `A${row}`;
-
-    baslikAraligi.forEach((_, i) => {
-      const col = i + 2;
-      const cell = hedefSayfa.getRange(row, col);
-      const baslikHucresi = hedefSayfa.getRange(1, col).getA1Notation();
-
-      const formul = `=IF(${mpRef}="";"";IFERROR(INDEX(FILTER(INDEX('Form Yanıtları'!A2:BE; ; MATCH(${baslikHucresi}; 'Form Yanıtları'!A1:BE1; 0)); (TRIM('Form Yanıtları'!C2:C) = TRIM(${mpRef})) * (INDEX('Form Yanıtları'!A2:BE; ; MATCH(${baslikHucresi}; 'Form Yanıtları'!A1:BE1; 0)) <> "")); COUNTA(FILTER(INDEX('Form Yanıtları'!A2:BE; ; MATCH(${baslikHucresi}; 'Form Yanıtları'!A1:BE1; 0)); (TRIM('Form Yanıtları'!C2:C) = TRIM(${mpRef})) * (INDEX('Form Yanıtları'!A2:BE; ; MATCH(${baslikHucresi}; 'Form Yanıtları'!A1:BE1; 0)) <> "")))); ""))`;
-
-      cell.setFormula(formul.replace(/\n/g, "").replace(/\s{2,}/g, " "));
-    });
-
-    Utilities.sleep(1000);
-  }
-}
-
 function doldurVeriSayfasi_501_1000() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const hedefSayfa = ss.getSheetByName("Veri");
 
   if (!hedefSayfa) {
-    SpreadsheetApp.getUi().alert("'Veri' sayfası bulunamadı.");
+    SpreadsheetApp.getUi().alert("Veri sayfası bulunamadı.");
     return;
   }
 
   const baslikAraligi = hedefSayfa.getRange(1, 2, 1, 56).getValues()[0];
 
-  for (let row = 502; row <= 1000; row++) {
+  for (let row = 501; row <= 1000; row++) {
     const mpRef = `A${row}`;
 
     baslikAraligi.forEach((_, i) => {
@@ -77,7 +59,22 @@ function doldurVeriSayfasi_501_1000() {
       const cell = hedefSayfa.getRange(row, col);
       const baslikHucresi = hedefSayfa.getRange(1, col).getA1Notation();
 
-      const formul = `=IF(${mpRef}="";"";IFERROR(INDEX(FILTER(INDEX('Form Yanıtları'!A2:BE; ; MATCH(${baslikHucresi}; 'Form Yanıtları'!A1:BE1; 0)); (TRIM('Form Yanıtları'!C2:C) = TRIM(${mpRef})) * (INDEX('Form Yanıtları'!A2:BE; ; MATCH(${baslikHucresi}; 'Form Yanıtları'!A1:BE1; 0)) <> "")); COUNTA(FILTER(INDEX('Form Yanıtları'!A2:BE; ; MATCH(${baslikHucresi}; 'Form Yanıtları'!A1:BE1; 0)); (TRIM('Form Yanıtları'!C2:C) = TRIM(${mpRef})) * (INDEX('Form Yanıtları'!A2:BE; ; MATCH(${baslikHucresi}; 'Form Yanıtları'!A1:BE1; 0)) <> "")))); ""))`;
+      const formul = `=IF(${mpRef}="";"";IFERROR(
+        INDEX(
+          FILTER(
+            INDEX('FormYanıtları'!A2:BE; ; MATCH(${baslikHucresi}; 'FormYanıtları'!A1:BE1; 0));
+            (TRIM('FormYanıtları'!C2:C) = TRIM(${mpRef})) *
+            (INDEX('FormYanıtları'!A2:BE; ; MATCH(${baslikHucresi}; 'FormYanıtları'!A1:BE1; 0)) <> "")
+          );
+          COUNTA(
+            FILTER(
+              INDEX('FormYanıtları'!A2:BE; ; MATCH(${baslikHucresi}; 'FormYanıtları'!A1:BE1; 0));
+              (TRIM('FormYanıtları'!C2:C) = TRIM(${mpRef})) *
+              (INDEX('FormYanıtları'!A2:BE; ; MATCH(${baslikHucresi}; 'FormYanıtları'!A1:BE1; 0)) <> "")
+            )
+          )
+        );
+      ""))`;
 
       cell.setFormula(formul.replace(/\n/g, "").replace(/\s{2,}/g, " "));
     });
@@ -87,14 +84,32 @@ function doldurVeriSayfasi_501_1000() {
 }
 ```
 
-## Örnek Görünüm
-
-![screen](screen.png)
+> ✅ Not: Aynı mantıkla 0–500 satır arası için fonksiyon `doldurVeriSayfasi_1_500()` olarak adlandırılabilir.
 
 ---
 
-Bu sistem, Google Form'dan gelen tekrarlayan hasta protokol verilerinde **en güncel yanıtı** getirerek veritabanı işlevi görür. Kodları ve formülü dilediğiniz gibi özelleştirebilirsiniz.
+## 🔹 Örnek Görsel
+
+![Google Form ekran görüntüsü](screen.png)
 
 ---
 
-Herhangi bir sorunuz olursa katkı yapabilir veya `issue` açabilirsiniz ✨
+## 📄 Özet
+- Tek form, tek yanıt sayfası.
+- C sütunu sabit protokol numarası.
+- "Veri" sayfası otomatik doldurulur.
+- En güncel veri getirilir.
+- Aynı MP kodu birden fazla kez girilirse sonuncusu kullanılır.
+- Kod, 500'er satırlık bloklar halinde çalışır.
+
+---
+
+## 🎉 Katkı
+Bu proje açıktır ve her türlü katkıya açıktır.
+
+> ✨ Klinik veri toplamı, NGS rapor işlemleri, mutasyon izleme için idealdir.
+
+---
+
+Siz de katkı vermek isterseniz PR açabilir veya önerilerinizi paylaşabilirsiniz.
+
