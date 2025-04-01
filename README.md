@@ -5,7 +5,7 @@
 Bu proje sayesinde, **Google Form** üzerinden hasta bilgilerini toplayabilir ve **Google E-Tablolar (Sheets)** üzerinde otomatik olarak eşleşen, güncellenen ve genişleyebilen bir "veri tabanı görünümü" elde edebilirsiniz.
 
 Kodlar tamamen **Google Apps Script** ile hazırlanmıştır.  
-**Formda protokol numarası (`MP42/25` gibi)** esas alınır ve bilgilerin tekrarsız, güncel hali "Veri" adlı sayfaya formüllerle yansıtılır.
+**Formda protokol numarası (`MP42/25` gibi)** esas alınır ve bilgilerin tekrarsız, güncel hali "Veri" adlı sayfaya formüllerle yansıtılır. Veri içermeyen cevaplar eskileri silmez.
 
 ---
 
@@ -15,7 +15,6 @@ Projeye başlamadan önce bu dosyaların elinizde olması gerekir:
 
 - `doldurVeriSayfasi_0_500.gs` → İlk 500 satır için formül yerleşimi  
 - `doldurVeriSayfasi_501_1000.gs` → 501–1000 arası satırlar için genişletme
-- `screen.png` → Örnek Google Form ekran görüntüsü
 
 ---
 
@@ -85,9 +84,11 @@ Eğer hasta sayınız 500'den fazlaysa:
 
 ## 🧠 Neler Bilmelisiniz?
 
-- Google Form’da yaptığınız değişiklikler (soru ekleme gibi), **Veri** sayfasında da yeniden script çalıştırmanızı gerektirir.
+- Google Form’da yaptığınız eklemeler (soru ekleme gibi), **Veri** sayfasında da başlıkları eklemenz gerekebilir.
 - Her form yanıtı geldiğinde formüller otomatik çalışır.
 - Elle formül yazmanıza gerek yoktur.
+- İlk hastanız formdan gönderilince ilk satırda belirir. İkinci hasta ikinci satıra geçer.
+- girilmiş bir hasta tekrar girilince yeni satır eklenmez, eskisinin üserine yeni bilge neyse eklenir, boş yanıtlar dolu hücreleri boş yapmaz.
 
 ---
 
