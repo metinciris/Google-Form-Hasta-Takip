@@ -1,19 +1,22 @@
+// 📁 Script: doldurVeriSayfasi_501_1000.gs
+// ✅ Form yanıtları ile "Veri" sayfasını eşleştirir (satır 501–1000 arası)
+
 function doldurVeriSayfasi_501_1000() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const hedefSayfa = ss.getSheetByName("Veri");
 
   if (!hedefSayfa) {
-    SpreadsheetApp.getUi().alert("'Veri' adlı sayfa bulunamadı.");
+    SpreadsheetApp.getUi().alert("'Veri' sayfası bulunamadı.");
     return;
   }
 
-  const baslikAraligi = hedefSayfa.getRange(1, 2, 1, 56).getValues()[0]; // B1:BE1 arası başlıklar
+  const baslikAraligi = hedefSayfa.getRange(1, 2, 1, 56).getValues()[0]; // B1:BE1 başlıkları alır
 
   for (let row = 501; row <= 1000; row++) {
     const mpRef = `A${row}`;
 
     baslikAraligi.forEach((_, i) => {
-      const col = i + 2; // B sütunundan başla
+      const col = i + 2; // B:BE sütunları
       const cell = hedefSayfa.getRange(row, col);
       const baslikHucresi = hedefSayfa.getRange(1, col).getA1Notation();
 
@@ -37,6 +40,6 @@ function doldurVeriSayfasi_501_1000() {
       cell.setFormula(formul.replace(/\n/g, "").replace(/\s{2,}/g, " "));
     });
 
-    Utilities.sleep(1000); // Her satırdan sonra 1 saniye bekle
+    Utilities.sleep(1000); // Google sınırları için bekleme
   }
 }
