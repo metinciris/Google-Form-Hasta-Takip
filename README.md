@@ -1,115 +1,107 @@
-# 📁 Google Form ile Otomatik Veri Eşleştirme (Veritabanı Görünümlü)
+# 📁 Google Form ile Dinamik Hasta Takip Tablosu
 
-## 🌐 Amaç
-Bu proje, Google Forms aracılığıyla toplanan hasta bilgilerinin, hasta protokol numarası ("MP42/25" gibi) ile eşleşitirilerek Google Sheets üzerinde dinamik bir "veri tabanı" oluşturulmasını sağlar. Kodlar Apps Script ile yazılmıştır.
-google form oluşturun, tabloya bağlayın (form ayarında), Tabloda "Veri" adında sayfa oluşturun, tablo --> uzantılar --> apps komut dosyasına geçin --> kod.gs içine scripti kaydedin, çalıştırın, gerekli izin isteyince verin. Veri tablosunda gerekli formüller oluşacak. Sizin formül oluşturmanıza gerek kalmayacak. 500 satır 500 benzersiz hasta için yeterli. Her şey tamam ise form üzerinden göndermeye başlayın. Formunuzu 50 soruya kadar sorunsuz uzatabilirsiniz. Hasta girdikçe tablonuza işlenecek. Benzersiz hasta girince yeni satır oluşacak. Eski hasta girerseniz eskisine güncel haliyle işlenit. 
----
+## 🧩 Bu Nedir?
 
-## 🔧 Kurulum Aşamaları
+Bu proje sayesinde, **Google Form** üzerinden hasta bilgilerini toplayabilir ve **Google E-Tablolar (Sheets)** üzerinde otomatik olarak eşleşen, güncellenen ve genişleyebilen bir "veri tabanı görünümü" elde edebilirsiniz.
 
-### ✏️ 1. Google Form Oluşturun
-
-Formunuzda mutlaka bulunması gereken ilk 3 alan:
-
-| Sıra | Alan                        |        | Ayarlar |
-|------|-----------------------------|-----------|---------|
-| 1    | Zaman Damgası             | Otomatik  | -       |
-| 2    | E-posta Adresi              | Otomatik  | Ayarlardan etkinleştirin |
-| 3    | Hasta Protokol Numarası   | Kısa Yanıt | Zorunlu, şu ifade ile: `^[^\s]+$` (Boşluk karakteri içeremez)
-
-+ Diğer alanlar (mutasyonlar, klinik bilgiler, yorum vs.) ihtiyaca göre eklenebilir.
+Kodlar tamamen **Google Apps Script** ile hazırlanmıştır.  
+**Formda protokol numarası (`MP42/25` gibi)** esas alınır ve bilgilerin tekrarsız, güncel hali "Veri" adlı sayfaya formüllerle yansıtılır.
 
 ---
 
-### 📄 2. Google Sheet İçeriği
+## 🛠️ Gerekli Dosyalar
 
-Form oluştuktan sonra otomatik olarak **FormYanıtları** sayfası oluşur. Ayrıca aynı dosyada yeni bir sayfa oluşturun:  
-**Sayfa adı: `Veri`**
+Projeye başlamadan önce bu dosyaların elinizde olması gerekir:
 
-Bu sayfaya hasta protokol numarasına göre en güncel bilgileri otomatik getireceğiz.
-
----
-
-### 👨‍💻 3. Apps Script Ekleme
-
-1. Google Sheet üzerinden `Uzantılar > Apps Script` menüsüne gidin.
-2. `Kod.gs` dosyasının içeriğini aşağıya yapıştırın:
+- `doldurVeriSayfasi_0_500.gs` → İlk 500 satır için formül yerleşimi  
+- `doldurVeriSayfasi_501_1000.gs` → 501–1000 arası satırlar için genişletme
+- `screen.png` → Örnek Google Form ekran görüntüsü
 
 ---
 
-### ✉️ Kod (501–1000 Arası Satırlar)
+## 🚀 Kurulum Adımları
 
-```javascript
-function doldurVeriSayfasi_501_1000() {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
-  const hedefSayfa = ss.getSheetByName("Veri");
+### 1. 📄 Google Form Oluşturun
+Google Form'unuza şu alanları mutlaka ekleyin:
 
-  if (!hedefSayfa) {
-    SpreadsheetApp.getUi().alert("Veri sayfası bulunamadı.");
-    return;
-  }
+- ✅ **Zaman damgası** (otomatik eklenir)
+- ✅ **E-posta adresi** (opsiyonel ama önerilir)
+- ✅ **Hasta Protokol Numarası** (örneğin: `MP42/25`)
 
-  const baslikAraligi = hedefSayfa.getRange(1, 2, 1, 56).getValues()[0];
+🔒 **Protokol Numarası alanı için doğrulama:**  
+Yanıt doğrulaması: `Normal ifade içerir` → `^[^\s]+$`  
+Açıklama: `"Boşluk içermeyen bir kod girin (örn: MP42/25)"`
 
-  for (let row = 501; row <= 1000; row++) {
-    const mpRef = `A${row}`;
-
-    baslikAraligi.forEach((_, i) => {
-      const col = i + 2;
-      const cell = hedefSayfa.getRange(row, col);
-      const baslikHucresi = hedefSayfa.getRange(1, col).getA1Notation();
-
-      const formul = `=IF(${mpRef}="";"";IFERROR(
-        INDEX(
-          FILTER(
-            INDEX('FormYanıtları'!A2:BE; ; MATCH(${baslikHucresi}; 'FormYanıtları'!A1:BE1; 0));
-            (TRIM('FormYanıtları'!C2:C) = TRIM(${mpRef})) *
-            (INDEX('FormYanıtları'!A2:BE; ; MATCH(${baslikHucresi}; 'FormYanıtları'!A1:BE1; 0)) <> "")
-          );
-          COUNTA(
-            FILTER(
-              INDEX('FormYanıtları'!A2:BE; ; MATCH(${baslikHucresi}; 'FormYanıtları'!A1:BE1; 0));
-              (TRIM('FormYanıtları'!C2:C) = TRIM(${mpRef})) *
-              (INDEX('FormYanıtları'!A2:BE; ; MATCH(${baslikHucresi}; 'FormYanıtları'!A1:BE1; 0)) <> "")
-            )
-          )
-        );
-      ""))`;
-
-      cell.setFormula(formul.replace(/\n/g, "").replace(/\s{2,}/g, " "));
-    });
-
-    Utilities.sleep(1000);
-  }
-}
-```
-
-> ✅ Not: Aynı mantıkla 0–500 satır arası için fonksiyon `doldurVeriSayfasi_1_500()` olarak adlandırılabilir.
+![Form Görünümü](screen.png)
 
 ---
 
-## 🔹 Örnek Görsel
+### 2. 📊 Google Sheets’e Bağlayın
+Form yanıtlarını yeni bir Google E-Tabloya gönderin:
 
-![Google Form ekran görüntüsü](screen.png)
-
----
-
-## 📄 Özet
-- Tek form, tek yanıt sayfası.
-- C sütunu sabit protokol numarası.
-- "Veri" sayfası otomatik doldurulur.
-- En güncel veri getirilir.
-- Aynı MP kodu birden fazla kez girilirse sonuncusu kullanılır.
-- Kod, 500'er satırlık bloklar halinde çalışır.
+- Form ayarlarından **“Yanıtlar” > “Elektronik tabloya gönder”** seçin.
+- Yeni bir e-tablo oluşturun.
 
 ---
 
-## 🎉 Katkı
-Bu proje açıktır ve her türlü katkıya açıktır.
+### 3. 📑 “Veri” Sayfası Ekleyin
 
-> ✨ Klinik veri toplamı, NGS rapor işlemleri, mutasyon izleme için idealdir.
+Oluşan e-tabloda, alt kısmında yeni bir sayfa (sheet) ekleyin.  
+Bu sayfanın adını tam olarak **`Veri`** yapın. (Büyük/küçük harf önemli.)
 
 ---
 
-Siz de katkı vermek isterseniz PR açabilir veya önerilerinizi paylaşabilirsiniz.
+### 4. 💻 Apps Script’i Açın
+
+Google Sheets’te:
+
+- Menüden **Uzantılar → Apps Komut Dosyası**'nı açın.
+- Açılan editörde:
+
+  - `doldurVeriSayfasi_0_500.gs` dosyasındaki kodu yeni bir `.gs` dosyasına yapıştırın.
+  - Aynı şekilde, 500’den fazla hasta için gerekiyorsa `doldurVeriSayfasi_501_1000.gs` dosyasını da ekleyin.
+
+---
+
+### 5. ▶️ Script’i Çalıştırın
+
+- Editörde üstteki listeden `doldurVeriSayfasi_0_500()` fonksiyonunu seçin ve ▶️ butonuna tıklayın.
+- Google sizden izin isteyecek, “Gelişmiş”e tıklayıp izni verin.
+
+✅ Artık **Veri** sayfasında ilk 500 satıra otomatik olarak formüller yerleşecek.  
+Yeni hasta girişiyle yeni satır eklenir.  
+Aynı hasta tekrar girilirse, son bilgiler otomatik yansıtılır.
+
+---
+
+## 🔁 Genişletme (501–1000 Satır)
+
+Eğer form yanıtlarınız 500'den fazlaysa:
+
+- `doldurVeriSayfasi_501_1000()` fonksiyonunu çalıştırın.
+- Böylece 501–1000 arası satırlar da formülle doldurulmuş olur.
+
+---
+
+## 🧠 Neler Bilmelisiniz?
+
+- Google Form’da yaptığınız değişiklikler (soru ekleme gibi), **Veri** sayfasında da yeniden script çalıştırmanızı gerektirir.
+- Her form yanıtı geldiğinde formüller otomatik çalışır.
+- Elle formül yazmanıza gerek yoktur.
+
+---
+
+## 🔓 Lisans
+
+Bu proje [MIT Lisansı](LICENSE) ile sunulmuştur.  
+Klinik, eğitimsel veya araştırma amaçlı dilediğiniz gibi kullanabilir ve geliştirebilirsiniz.
+
+---
+
+## 💬 Geri Bildirim
+
+İlk kez kullananlar için adım adım anlatım hedeflenmiştir.  
+Sizden gelen katkı ve önerilerle proje gelişmeye devam edecek.
+
+🔗 [GitHub Repo](https://github.com/metinciris/Google-Form-Hasta-Takip)
 
