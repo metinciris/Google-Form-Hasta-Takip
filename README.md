@@ -69,9 +69,9 @@ Google Sheets’te:
 - Google sizden izin isteyecek, “Gelişmiş”e tıklayıp izni verin.
 
 ✅ Artık **Veri** sayfasında ilk 500 satıra otomatik olarak formüller yerleşecek.  
-Yeni hasta girişiyle yeni satır eklenir.  
-Aynı hasta tekrar girilirse, son bilgiler otomatik yansıtılır.
-
+Hatasız çalıştı ve bitirdi ise Veri sayfanızda formüller belirecek. 
+Tablo içeriği boş ama tıklayınca her hücrede formül olacak.
+Formdan veri gönderilince Form yanıtlarından buraya otomatik veri çekilecek.
 ---
 
 ## 🔁 Genişletme (501–1000 Satır)
