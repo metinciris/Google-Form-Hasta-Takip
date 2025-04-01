@@ -2,7 +2,7 @@
 
 ## 🌐 Amaç
 Bu proje, Google Forms aracılığıyla toplanan hasta bilgilerinin, hasta protokol numarası ("MP42/25" gibi) ile eşleşitirilerek Google Sheets üzerinde dinamik bir "veri tabanı" oluşturulmasını sağlar. Kodlar Apps Script ile yazılmıştır.
-
+google form oluşturun, tabloya bağlayın (form ayarında), Tabloda "Veri" adında sayfa oluşturun, tablo --> uzantılar --> apps komut dosyasına geçin --> kod.gs içine scripti kaydedin, çalıştırın, gerekli izin isteyince verin. Veri tablosunda gerekli formüller oluşacak. Sizin formül oluşturmanıza gerek kalmayacak. 500 satır 500 benzersiz hasta için yeterli. Her şey tamam ise form üzerinden göndermeye başlayın. Formunuzu 50 soruya kadar sorunsuz uzatabilirsiniz. Hasta girdikçe tablonuza işlenecek. Benzersiz hasta girince yeni satır oluşacak. Eski hasta girerseniz eskisine güncel haliyle işlenit. 
 ---
 
 ## 🔧 Kurulum Aşamaları
@@ -11,7 +11,7 @@ Bu proje, Google Forms aracılığıyla toplanan hasta bilgilerinin, hasta proto
 
 Formunuzda mutlaka bulunması gereken ilk 3 alan:
 
-| Sıra | Alan                        | Tip       | Ayarlar |
+| Sıra | Alan                        |        | Ayarlar |
 |------|-----------------------------|-----------|---------|
 | 1    | Zaman Damgası             | Otomatik  | -       |
 | 2    | E-posta Adresi              | Otomatik  | Ayarlardan etkinleştirin |
