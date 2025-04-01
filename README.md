@@ -76,11 +76,11 @@ Aynı hasta tekrar girilirse, son bilgiler otomatik yansıtılır.
 
 ## 🔁 Genişletme (501–1000 Satır)
 
-Eğer form yanıtlarınız 500'den fazlaysa:
+Eğer hasta sayınız 500'den fazlaysa:
 
-- `doldurVeriSayfasi_501_1000()` fonksiyonunu çalıştırın.
+- `doldurVeriSayfasi_501_1000` fonksiyonunu çalıştırın.
 - Böylece 501–1000 arası satırlar da formülle doldurulmuş olur.
-
+- Form sayısı yüz binler olabilir sorun değil.
 ---
 
 ## 🧠 Neler Bilmelisiniz?
